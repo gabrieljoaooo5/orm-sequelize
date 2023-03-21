@@ -55,6 +55,17 @@ class UserController {
             return res.status(500).json(error.message)
         }
     }
+
+    static async restoreUser(req, res) {
+        const { id } = req.params
+        try {
+          await database.Users.restore( {where: { id: Number(id) } } )
+          return res.status(200).json({ mensagem: `id ${id} restored`})
+        } catch (error) {
+          return res.status(500).json(error.message)
+        }
+      }
+
     static async getEnrollment(req, res) {
         const { studentId, enrollmentId } = req.params
         try {
