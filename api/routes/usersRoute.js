@@ -3,7 +3,8 @@ const UserController = require('../controllers/UserController')
 
 const router = Router()
 
-router.get('/users', UserController.getUsers)
+router.get('/users', UserController.getActiveUsers)
+router.get('/users/all', UserController.getAllUsers)
 router.get('/users/:id', UserController.getUserById)
 router.post('/users', UserController.createUser)
 router.put('/users/:id', UserController.updateUser)
