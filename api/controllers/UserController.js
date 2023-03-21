@@ -11,7 +11,7 @@ class UserController {
     }
 
     static async getUserById(req, res) {
-        const { id }= req.params
+        const { id } = req.params
         try {
             const user = await database.Users.findOne({ where: { id: Number(id) } })
             return res.status(200).json(user)
@@ -33,7 +33,7 @@ class UserController {
     }
 
     static async updateUser(req, res) {
-        const { id }= req.params
+        const { id } = req.params
         const newInfo = req.body
         try {
             await database.Users.update(newInfo, { where: { id: Number(id) } })
@@ -46,10 +46,63 @@ class UserController {
     }
 
     static async deleteUser(req, res) {
-        const { id }= req.params
+        const { id } = req.params
         try {
-            await database.Users.destroy( { where: { id: Number(id) } })
-            return res.status(200).json({message: `Id ${id} was deleted.`})
+            await database.Users.destroy({ where: { id: Number(id) } })
+            return res.status(200).json({ message: `Id ${id} was deleted.` })
+
+        } catch (error) {
+            return res.status(500).json(error.message)
+        }
+    }
+    static async getEnrollment(req, res) {
+        const { studentId, enrollmentId } = req.params
+        try {
+            const enrollment = await database.Enrollments.findOne({
+                where: {
+                    id: Number(enrollmentId),
+                    studentId: Number(studentId)
+                }
+            })
+            return res.status(200).json(enrollment)
+        } catch (error) {
+            return res.status(500).json(error.message)
+        }
+    }
+
+    static async createEnrollment(req, res) {
+        const { studentId } = req.params
+        const newEnrollment = { ...req.body, studentId: Number(studentId) }
+        try {
+            const newEnrollmentCreated = await database.Enrollments.create(newEnrollment)
+            return res.status(200).json(newEnrollmentCreated)
+        } catch (error) {
+            return res.status(500).json(error.message)
+        }
+    }
+
+    static async updateEnrollment(req, res) {
+        const { studentId, enrollmentId } = req.params
+        const newInfo = req.body
+        try {
+            await database.Enrollments.update(newInfo, {
+                where: {
+                    id: Number(enrollmentId),
+                    studentId: Number(studentId)
+                }
+            })
+            const enrollmentUpdated = await database.Enrollments.findOne({ where: { id: Number(enrollmentId) } })
+            return res.status(200).json(enrollmentUpdated)
+        } catch (error) {
+            return res.status(500).json(error.message)
+        }
+    }
+
+    static async deleteEnrollment(req, res) {
+        const { enrollmentId } = req.params
+        try {
+            await database.Enrollments.destroy({ where: { id: Number(enrollmentId) } })
+            return res.status(200).json({ mensagem: `id ${enrollmentId} deleted` })
 
         } catch (error) {
             return res.status(500).json(error.message)
