@@ -15,7 +15,9 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'teacherId'
       })
       Users.hasMany(models.Enrollments, {
-        foreignKey: 'studentId'
+        foreignKey: 'studentId',
+        scope: { status: 'confirmed'},
+        as: 'enrolledClasses'
       })
     }
   }

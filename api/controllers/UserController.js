@@ -68,12 +68,59 @@ class UserController {
     static async restoreUser(req, res) {
         const { id } = req.params
         try {
-          await database.Users.restore( {where: { id: Number(id) } } )
-          return res.status(200).json({ mensagem: `id ${id} restored`})
+            await database.Users.restore({ where: { id: Number(id) } })
+            return res.status(200).json({ mensagem: `id ${id} restored` })
         } catch (error) {
-          return res.status(500).json(error.message)
+            return res.status(500).json(error.message)
         }
-      }
+    }
+
+    static async getEnrollmentsByStudentId(req, res) {
+        const { studentId } = req.params
+        try {
+            const user = await database.Users.findOne({ where: { id: Number(studentId) } })
+            const enrollments = await user.getEnrolledClasses()
+            return res.status(200).json(enrollments)
+        } catch (error) {
+            return res.status(500).json(error.message)
+        }
+    }
+
+    static async getEnrollmentsCountByClassId(req, res) {
+        const { classId } = req.params
+        try {
+            const enrollments = await database.Enrollments
+                .findAndCountAll({
+                    where: {
+                        classId: Number(classId),
+                        status: 'confirmed'
+                    },
+                    limit: 20,
+                    order: [['studentId', 'DESC']]
+                })
+            return res.status(200).json(enrollments)
+        } catch (error) {
+            return res.status(500).json(error.message)
+        }
+    }
+
+    static async getFullClasses(req, res) {
+        const limitStudentsPerClass = 2
+        try {
+            const fullClasses = await database.Enrollments
+                .findAndCountAll({
+                    where: {
+                        status: 'confirmed'
+                    },
+                    attributes: ['classId'],
+                    group: ['classId'],
+                    having: Sequelize.literal(`count(classId) >= ${limitStudentsPerClass}`)
+                })
+            return res.status(200).json(fullClasses.count)
+        } catch (error) {
+            return res.status(500).json(error.message)
+        }
+    }
 
     static async getEnrollment(req, res) {
         const { studentId, enrollmentId } = req.params
